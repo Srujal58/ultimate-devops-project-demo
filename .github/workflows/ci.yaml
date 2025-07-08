@@ -92,16 +92,17 @@ jobs:
           run: | 
                sed -i "s|image: .*|image: ${{ secrets.DOCKER_USERNAME }}/product-catalog:${{github.run_id}}|" kubernetes/productcatalog/deploy.yaml
         
-        - name: Commit and push changes
+        - name: Push changes using GitHub token
+          env:
+                GH_TOKEN: ${{ secrets.token }}
           run: |
-            git config --global user.email "shahsrujal80@gmail.com"
-            git config --global user.name "Srujal58"
-            git add kubernetes/productcatalog/deploy.yaml
-            git commit -m "[CI]: Update product catalog image tag"
-            git push origin HEAD:main -f
+                git config --global user.name "Srujal58"
+                git config --global user.email "shahsrujal80@gmail.com"
+                git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}
+                git add kubernetes/productcatalog/deploy.yaml
+                git commit -m "[CI]: Update product catalog image tag" || echo "No changes to commit"
+                git push origin HEAD:main
 
-        
-        
           
 
 
